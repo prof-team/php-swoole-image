@@ -79,8 +79,8 @@ RUN apt-get install -y \
 
 RUN docker-php-ext-install exif
 
-# Install swoole
-RUN pecl install swoole
+# Install swoole and openswoole
+RUN pecl install swoole openswoole
 
 # Install xdebub
 RUN pecl install xdebug
