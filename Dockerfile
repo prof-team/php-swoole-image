@@ -9,6 +9,8 @@ RUN apt-get install -y \
         git \
         wget \
         curl \
+        openssl \
+        libssl-dev \
         libpng-dev \
         libxml2-dev \
         libgmp-dev \
@@ -79,8 +81,14 @@ RUN apt-get install -y \
 
 RUN docker-php-ext-install exif
 
-# Install swoole and openswoole
-RUN pecl install swoole openswoole
+# Install openswoole
+RUN cd /tmp && git clone https://github.com/openswoole/ext-openswoole.git && \
+    cd ext-openswoole && \
+    git checkout v22.0.0 && \
+    phpize  && \
+    ./configure --enable-openssl --enable-hook-curl --enable-http2 --enable-mysqlnd && \
+    make && make install
+RUN echo 'extension=openswoole.so' > /usr/local/etc/php/conf.d/zzz_openswoole.ini
 
 # Install xdebub
 RUN pecl install xdebug
@@ -89,11 +97,6 @@ RUN pecl install xdebug
 RUN curl -sS https://getcomposer.org/installer | php -- \
         --filename=composer \
         --install-dir=/usr/local/bin
-
-# install php-cs-fixer
-RUN curl -L https://cs.symfony.com/download/php-cs-fixer-v3.phar -o php-cs-fixer && \
-    chmod a+x php-cs-fixer && \
-    mv php-cs-fixer /usr/local/bin/php-cs-fixer
 
 # set up UTF-8 locale
 RUN apt-get install -y locales
@@ -109,6 +112,9 @@ RUN mkdir -p /var/log/php
 RUN chown -R www-data:www-data /var/www
 
 COPY ./conf.d/ /usr/local/etc/php/conf.d
+
+ENV APP_ENV=prod
+ENV SWOOLE_RUNTIME=1
 
 COPY ./docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
