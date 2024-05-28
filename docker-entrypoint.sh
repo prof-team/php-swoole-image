@@ -13,5 +13,4 @@ trap _term SIGTERM
 sleep infinity &
 
 PROCESS_ID=$!
-
 wait $PROCESS_ID
