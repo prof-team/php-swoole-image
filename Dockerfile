@@ -1,4 +1,4 @@
-FROM php:8.2-cli
+FROM --platform=linux/arm64 php:8.2-cli
 
 RUN apt-get update && apt-get upgrade -y
 
