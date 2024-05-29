@@ -105,6 +105,9 @@ RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
     update-locale LANG=en_US.UTF-8
 ENV LANG en_US.UTF-8
 
+RUN wget -O /usr/local/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.2.2/dumb-init_1.2.2_amd64
+RUN chmod +x /usr/local/bin/dumb-init
+
 RUN apt-get clean && apt-get autoclean && apt-get autoremove -y
 RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 RUN mkdir -p /var/log/php
@@ -113,10 +116,4 @@ RUN chown -R www-data:www-data /var/www
 
 COPY ./conf.d/ /usr/local/etc/php/conf.d
 
-ENV APP_ENV=prod
-ENV SWOOLE_RUNTIME=1
-
-COPY ./docker-entrypoint.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
-
-ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+ENTRYPOINT ["/usr/local/bin/dumb-init", "--", "php"]
